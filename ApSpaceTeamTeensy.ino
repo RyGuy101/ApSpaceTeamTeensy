@@ -30,9 +30,9 @@
 
 uint8_t received_data[PAYLOAD_SIZE];
 // Define a  constant value to represent the maximum payload size we can transmit over the RF24
-const uint8_t maxSequenceLength = PAYLOAD_SIZE;
+const uint16_t maxSequenceLength = 1024;
 // Define the maximum LED sequence length we should handle
-uint8_t ledSequence[maxSequenceLength];
+uint8_t ledSequence[PAYLOAD_SIZE];
 uint8_t sequenceIndex = 0;
 bool showNewSequence = true;
 
@@ -62,7 +62,15 @@ void loop() {
     showNewSequence = false;
     ledSequence[sequenceIndex] = random(1, 4);
     flashLedSequence(ledSequence, (sequenceIndex + 1));
-    rf24.write(ledSequence, maxSequenceLength);
+    int write_start_index = 0;
+    for(int i = 0; i < (write_start_index/PAYLOAD_SIZE) + 1; i++){
+      uint8_t data_to_write[PAYLOAD_SIZE];
+      for(int j = 0; j < PAYLOAD_SIZE; j++){
+        data_to_write[j] = ledSequence[write_start_index];
+        write_start_index++;
+      }
+      rf24.write(data_to_write, PAYLOAD_SIZE);
+    }
     rf24.startListening();
     sequenceIndex++;
   }
