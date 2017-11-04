@@ -73,19 +73,21 @@ void loop() {
   
   if(rf24.available()) {
     rf24.read(&received_data, PAYLOAD_SIZE);
-    rf24.stopListening();
-    if (received_data[0] == CORRECT_BUTTONS) {
-      if (sequenceIndex == maxSequenceLength) {
-        flashWin();
-        sequenceIndex = 0;
+    if (received_data[0] != 0) {
+      rf24.stopListening();
+      if (received_data[0] == CORRECT_BUTTONS) {
+        if (sequenceIndex == maxSequenceLength) {
+          flashWin();
+          sequenceIndex = 0;
+        } else {
+          flashCorrect();
+        }
       } else {
-        flashCorrect();
+        flashWrong();
+        sequenceIndex = 0;
       }
-    } else {
-      flashWrong();
-      sequenceIndex = 0;
+      showNewSequence = true;
     }
-    showNewSequence = true;
   }  
 }
 
