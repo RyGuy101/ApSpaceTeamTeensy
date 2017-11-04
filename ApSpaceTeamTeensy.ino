@@ -65,6 +65,7 @@ void loop() {
     ledSequence[sequenceIndex] = random(1, 4);
     //Serial.println(ledSequence[sequenceIndex]);
     flashLedSequence();
+    Serial.println(ledSequence[0]);
     rf24.write(ledSequence, maxSequenceLength);
     rf24.startListening();
     sequenceIndex++;
