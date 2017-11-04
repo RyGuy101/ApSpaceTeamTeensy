@@ -1,5 +1,5 @@
 #include <nRF24L01.h>
-//#include <printf.h>
+#include <printf.h>
 #include <RF24.h>
 #include <RF24_config.h>
 
@@ -9,7 +9,7 @@
 #define WRITING_PIPE 0xE7E7E7E7E7
 #define PAYLOAD_SIZE 32
 
-#define LED_1_PIN 3
+#define LED_1_PIN 5
 #define LED_2_PIN 2
 #define LED_3_PIN 4
 
@@ -93,9 +93,14 @@ void loop() {
 
 void flashLedSequence() {
   for(int i = 0; i <= sequenceIndex; i++) {
-    digitalWrite(ledSequence[i] + 1, HIGH);
+    int pin = LED_1_PIN;
+    if (ledSequence[i] == LED_2)
+      pin = LED_2_PIN;
+    else if (ledSequence[i] == LED_3)
+      pin = LED_2_PIN;
+    digitalWrite(pin, HIGH);
     delay(750);
-    digitalWrite(ledSequence[i] + 1, LOW);
+    digitalWrite(pin, LOW);
   }
 }
 
@@ -117,12 +122,14 @@ void flashWrong() {
 
 void flashWin() {
   for(int i = 0; i < 3; i++){
-    for(int j = 2; j < 5; j++){
-      digitalWrite(j, HIGH);
+    for(int j = 2; j <= 5; j++){
+      if (j != 3)
+        digitalWrite(j, HIGH);
     }
     delay(250);
-    for(int j = 2; j < 5; j++){
-      digitalWrite(j, LOW);
+    for(int j = 2; j <= 5; j++){
+      if (j != 3)
+        digitalWrite(j, LOW);
     }
   }
 }
