@@ -3,14 +3,14 @@
 #include <RF24.h>
 #include <RF24_config.h>
 
-#define CE_PIN 0 //TODO
-#define CSN_PIN 0 //TODO
+#define CE_PIN 9
+#define CSN_PIN 10
 #define READING_PIPE 0xC2C2C2C2C2
 #define WRITING_PIPE 0xE7E7E7E7E7
 #define PAYLOAD_SIZE 32
 
-#define LED_1_PIN 2
-#define LED_2_PIN 3
+#define LED_1_PIN 3
+#define LED_2_PIN 2
 #define LED_3_PIN 4
 
 #define LED_1 0x01
@@ -18,10 +18,10 @@
 #define LED_3 0x03
 
 #define RED_LED LED_1_PIN
-#define YELLOW_LED LED_2_PIN
-#define GREEN_LED LED_3_PIN
+#define GREEN_LED LED_2_PIN
+#define YELLOW_LED LED_3_PIN
 
-#define BAUD_RATE 57600
+#define BAUD_RATE 9600
 
 #define CORRECT_BUTTONS 0x04
 #define WRONG_BUTTONS 0x05
@@ -55,13 +55,16 @@ void setup() {
   // Our cyclic redundancy check will be 2 bytes long at the end of our data payload
   rf24.setCRCLength(RF24_CRC_16);
   rf24.setPayloadSize(PAYLOAD_SIZE);
+
+  randomSeed(analogRead(0));
 }
 
 void loop() {
   if (showNewSequence) {
     showNewSequence = false;
     ledSequence[sequenceIndex] = random(1, 4);
-    flashLedSequence(ledSequence, (sequenceIndex + 1));
+    //Serial.println(ledSequence[sequenceIndex]);
+    flashLedSequence();
     rf24.write(ledSequence, maxSequenceLength);
     rf24.startListening();
     sequenceIndex++;
@@ -85,11 +88,11 @@ void loop() {
   }  
 }
 
-void flashLedSequence(uint8_t *led_sequence, uint8_t sequence_length) {
-  for(int i = 0; i < sequence_length; i++){
-    digitalWrite(led_sequence[i] + 1, HIGH);
+void flashLedSequence() {
+  for(int i = 0; i <= sequenceIndex; i++) {
+    digitalWrite(ledSequence[i] + 1, HIGH);
     delay(750);
-    digitalWrite(led_sequence[i] + 1, LOW);
+    digitalWrite(ledSequence[i] + 1, LOW);
   }
 }
 
