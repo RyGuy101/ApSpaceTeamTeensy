@@ -97,7 +97,7 @@ void flashLedSequence() {
     if (ledSequence[i] == LED_2)
       pin = LED_2_PIN;
     else if (ledSequence[i] == LED_3)
-      pin = LED_2_PIN;
+      pin = LED_3_PIN;
     digitalWrite(pin, HIGH);
     delay(750);
     digitalWrite(pin, LOW);
