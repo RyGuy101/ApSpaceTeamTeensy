@@ -5,8 +5,8 @@
 
 #define CE_PIN 9
 #define CSN_PIN 10
-#define READING_PIPE 0xC2C2C2C2C2
-#define WRITING_PIPE 0xE7E7E7E7E7
+#define READING_PIPE 0xE7E7E7E7E7
+#define WRITING_PIPE 0xC2C2C2C2C2
 #define PAYLOAD_SIZE 32
 
 #define LED_1_PIN 5
@@ -50,45 +50,56 @@ void setup() {
   rf24.setChannel(13);
   // Our power amplification level will be the minimum
   rf24.setPALevel(RF24_PA_MIN);
-  rf24.openReadingPipe(1, READING_PIPE);
-  rf24.openWritingPipe(WRITING_PIPE);
+  rf24.openReadingPipe(0, READING_PIPE);
+  //rf24.openWritingPipe(WRITING_PIPE);
   // Our cyclic redundancy check will be 2 bytes long at the end of our data payload
   rf24.setCRCLength(RF24_CRC_16);
-  rf24.setPayloadSize(PAYLOAD_SIZE);
+  //rf24.setPayloadSize(PAYLOAD_SIZE);
 
   randomSeed(analogRead(0));
 }
 
-void loop() {
-  if (showNewSequence) {
-    showNewSequence = false;
-    ledSequence[sequenceIndex] = random(1, 4);
-    //Serial.println(ledSequence[sequenceIndex]);
-    flashLedSequence();
-    Serial.println(ledSequence[0]);
-    rf24.write(ledSequence, maxSequenceLength);
-    rf24.startListening();
-    sequenceIndex++;
+void test() {
+  rf24.startListening();
+  while (!rf24.available()) {
   }
-  
-  if(rf24.available()) {
-    rf24.read(&received_data, PAYLOAD_SIZE);
-    if (received_data[0] != 0) {
-      rf24.stopListening();
-      if (received_data[0] == CORRECT_BUTTONS) {
-        if (sequenceIndex == maxSequenceLength) {
-          flashWin();
-          sequenceIndex = 0;
-        } else {
-          flashCorrect();
-        }
-      } else {
-        flashWrong();
-        sequenceIndex = 0;
-      }
-      showNewSequence = true;
-    }
-  }  
+  rf24.read(&received_data, PAYLOAD_SIZE);
+  rf24.stopListening();
+  Serial.print(received_data[0]);
+}
+
+void loop() {
+  test();
+//  if (showNewSequence) {
+//    showNewSequence = false;
+//    ledSequence[sequenceIndex] = random(1, 4);
+//    //Serial.println(ledSequence[sequenceIndex]);
+//    flashLedSequence();
+//    Serial.println(ledSequence[0]);
+//    rf24.write(ledSequence, maxSequenceLength);
+//    rf24.startListening();
+//    sequenceIndex++;
+//  }
+//  
+//  if(rf24.available()) {
+//    rf24.read(&received_data, PAYLOAD_SIZE);
+//    Serial.print(received_data[0]);
+//    if (received_data[0] != 0) {
+//      rf24.stopListening();
+//      if (received_data[0] == CORRECT_BUTTONS) {
+//        if (sequenceIndex == maxSequenceLength) {
+//          flashWin();
+//          sequenceIndex = 0;
+//        } else {
+//          flashCorrect();
+//        }
+//      } else {
+//        flashWrong();
+//        sequenceIndex = 0;
+//      }
+//      showNewSequence = true;
+//    }
+//  }  
 }
 
 void flashLedSequence() {
