@@ -59,22 +59,7 @@ void setup() {
   randomSeed(analogRead(0));
 }
 
-void test() {
-//  rf24.startListening();
-//  while (!rf24.available()) {
-//  }
-//  rf24.read(&received_data, PAYLOAD_SIZE);
-//  rf24.stopListening();
-//  Serial.print(received_data[0]);
-
-
-  uint8_t test_buf[1] = {0x02};
-  rf24.write(test_buf, 1);
-  delay(5000);
-}
-
 void loop() {
-//  test();
   if (showNewSequence) {
     showNewSequence = false;
     ledSequence[sequenceIndex] = random(1, 4);
