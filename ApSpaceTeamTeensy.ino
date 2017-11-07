@@ -49,57 +49,67 @@ void setup() {
   // Set our communication channel to  13 for our team #
   rf24.setChannel(13);
   // Our power amplification level will be the minimum
-  rf24.setPALevel(RF24_PA_MIN);
-  rf24.openReadingPipe(0, READING_PIPE);
-  //rf24.openWritingPipe(WRITING_PIPE);
+  rf24.setPALevel(RF24_PA_MAX);
+  rf24.openReadingPipe(1, READING_PIPE);
+  rf24.openWritingPipe(WRITING_PIPE);
   // Our cyclic redundancy check will be 2 bytes long at the end of our data payload
   rf24.setCRCLength(RF24_CRC_16);
-  //rf24.setPayloadSize(PAYLOAD_SIZE);
+  rf24.setPayloadSize(PAYLOAD_SIZE);
 
   randomSeed(analogRead(0));
 }
 
 void test() {
-  rf24.startListening();
-  while (!rf24.available()) {
-  }
-  rf24.read(&received_data, PAYLOAD_SIZE);
-  rf24.stopListening();
-  Serial.print(received_data[0]);
+//  rf24.startListening();
+//  while (!rf24.available()) {
+//  }
+//  rf24.read(&received_data, PAYLOAD_SIZE);
+//  rf24.stopListening();
+//  Serial.print(received_data[0]);
+
+
+  uint8_t test_buf[1] = {0x02};
+  rf24.write(test_buf, 1);
+  delay(5000);
 }
 
 void loop() {
-  test();
-//  if (showNewSequence) {
-//    showNewSequence = false;
-//    ledSequence[sequenceIndex] = random(1, 4);
-//    //Serial.println(ledSequence[sequenceIndex]);
-//    flashLedSequence();
-//    Serial.println(ledSequence[0]);
-//    rf24.write(ledSequence, maxSequenceLength);
-//    rf24.startListening();
-//    sequenceIndex++;
-//  }
-//  
-//  if(rf24.available()) {
-//    rf24.read(&received_data, PAYLOAD_SIZE);
-//    Serial.print(received_data[0]);
-//    if (received_data[0] != 0) {
-//      rf24.stopListening();
-//      if (received_data[0] == CORRECT_BUTTONS) {
-//        if (sequenceIndex == maxSequenceLength) {
-//          flashWin();
-//          sequenceIndex = 0;
-//        } else {
-//          flashCorrect();
-//        }
-//      } else {
-//        flashWrong();
-//        sequenceIndex = 0;
-//      }
-//      showNewSequence = true;
-//    }
-//  }  
+//  test();
+  if (showNewSequence) {
+    showNewSequence = false;
+    ledSequence[sequenceIndex] = random(1, 4);
+    flashLedSequence();
+    Serial.print(ledSequence[sequenceIndex]);
+    rf24.write(ledSequence, maxSequenceLength);
+    rf24.startListening();
+    sequenceIndex++;
+  }
+  
+  if(rf24.available()) {
+    rf24.read(&received_data, PAYLOAD_SIZE);
+    Serial.print(received_data[0]);
+    if (received_data[0] != 0) {
+      rf24.stopListening();
+      if (received_data[0] == CORRECT_BUTTONS) {
+        if (sequenceIndex == maxSequenceLength) {
+          flashWin();
+          sequenceIndex = 0;
+          for (int i = 0; i < maxSequenceLength; i++) {
+            ledSequence[i] = 0;
+          }
+        } else {
+          flashCorrect();
+        }
+      } else {
+        flashWrong();
+        sequenceIndex = 0;
+        for (int i = 0; i < maxSequenceLength; i++) {
+          ledSequence[i] = 0;
+        }
+      }
+      showNewSequence = true;
+    }
+  }  
 }
 
 void flashLedSequence() {
@@ -112,6 +122,7 @@ void flashLedSequence() {
     digitalWrite(pin, HIGH);
     delay(750);
     digitalWrite(pin, LOW);
+    delay(250);
   }
 }
 
@@ -120,6 +131,7 @@ void flashCorrect() {
     digitalWrite(GREEN_LED, HIGH);
     delay(250);
     digitalWrite(GREEN_LED, LOW);
+    delay(500);
   }
 }
 
@@ -128,6 +140,7 @@ void flashWrong() {
     digitalWrite(RED_LED, HIGH);
     delay(250);
     digitalWrite(RED_LED, LOW);
+    delay(500);
   }
 }
 
@@ -143,5 +156,6 @@ void flashWin() {
         digitalWrite(j, LOW);
     }
   }
+  delay(500);
 }
 
